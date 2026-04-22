@@ -1,0 +1,40 @@
+#include <iostream>
+#include <memory>
+class Subject {
+public:
+    virtual ~Subject() = default;
+    virtual void request() = 0;
+};
+class RealSubject : public Subject {
+public:
+    void request() override {
+        std::cout << "RealSubject: procesando la solicitud real.\n";
+    }
+};
+class Proxy : public Subject {
+public:
+    explicit Proxy(bool accessGranted) : accessGranted(accessGranted) {}
+    void request() override {
+        if (!accessGranted) {
+            std::cout << "Proxy: acceso denegado.\n";
+            return;
+        }
+        if (!realSubject) {
+            std::cout << "Proxy: creando RealSubject bajo demanda...\n";
+            realSubject = std::make_unique<RealSubject>();
+        }
+        std::cout << "Proxy: delegando la solicitud.\n";
+        realSubject->request();
+    }
+private:
+    bool accessGranted;
+    std::unique_ptr<RealSubject> realSubject;
+};
+int main() {
+    Proxy proxyConAcceso(true);
+    proxyConAcceso.request();
+    std::cout << "-----\n";
+    Proxy proxySinAcceso(false);
+    proxySinAcceso.request();
+    return 0;
+}
