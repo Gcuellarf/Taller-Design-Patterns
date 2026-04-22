@@ -1,0 +1,52 @@
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+class Product {
+public:
+    void addPart(const std::string& part) { parts.push_back(part); }
+    void show() const {
+        std::cout << "Producto construido:\n";
+        for (const auto& part : parts) std::cout << " - " << part << '\n';
+    }
+private:
+    std::vector<std::string> parts;
+};
+class Builder {
+public:
+    virtual ~Builder() = default;
+    virtual void buildPartA() = 0;
+    virtual void buildPartB() = 0;
+    virtual void buildPartC() = 0;
+    virtual std::unique_ptr<Product> getProduct() = 0;
+};
+class ConcreteBuilder : public Builder {
+public:
+    ConcreteBuilder() : product(std::make_unique<Product>()) {}
+    void buildPartA() override { product->addPart("Parte A"); }
+    void buildPartB() override { product->addPart("Parte B"); }
+    void buildPartC() override { product->addPart("Parte C"); }
+    std::unique_ptr<Product> getProduct() override { return std::move(product); }
+private:
+    std::unique_ptr<Product> product;
+};
+class Director {
+public:
+    void setBuilder(Builder* b) { builder = b; }
+    void constructFull() {
+        builder->buildPartA();
+        builder->buildPartB();
+        builder->buildPartC();
+    }
+private:
+    Builder* builder = nullptr;
+};
+int main() {
+    ConcreteBuilder builder;
+    Director director;
+    director.setBuilder(&builder);
+    director.constructFull();
+    auto product = builder.getProduct();
+    if (product) product->show();
+    return 0;
+}
