@@ -1,0 +1,53 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// Observador
+class Observer {
+public:
+    virtual void actualizar(string mensaje) = 0;
+};
+
+// Observadores 
+class Usuario : public Observer {
+private:
+    string nombre;
+public:
+    Usuario(string n) {
+        nombre = n;
+    }
+
+    void actualizar(string mensaje) {
+        cout << nombre << " recibi: " << mensaje << endl;
+    }
+};
+
+// Sujeto
+class Canal {
+private:
+    vector<Observer*> suscriptores;
+
+public:
+    void suscribir(Observer* o) {
+        suscriptores.push_back(o);
+    }
+
+    void notificar(string mensaje) {
+        for (auto s : suscriptores) {
+            s->actualizar(mensaje);
+        }
+    }
+};
+
+// Main
+int main() {
+    Canal canal;
+    Usuario u1("Juan");
+    Usuario u2("Maria");
+    canal.suscribir(&u1);
+    canal.suscribir(&u2);
+    canal.notificar("Nuevo video subido");
+    return 0;
+}
+
+//.\observer.exe
